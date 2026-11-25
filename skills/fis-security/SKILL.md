@@ -48,6 +48,14 @@ new BrowserWindow({
 
 This is both security and testability: with `nodeIntegration: false`, all platform access flows through IPC, so tests mock at the IPC boundary and renderer attacks cannot reach the platform.
 
+## Secrets Outside the Sandbox
+
+Credentials must never be reachable from the sandbox where agent-generated code runs. A prompt injection only has to convince the agent to read its own environment to steal tokens.
+
+- **Vault + proxy**: store OAuth/MCP tokens in a secure vault; the agent calls MCP via a proxy that swaps in credentials — the harness never sees them.
+- **Resource-scoped auth**: for git, wire the repo's access token into the local remote during init; push/pull work without the agent handling the token.
+- **Never** put secrets in env vars visible to the sandbox, tool responses, logs, journal, or metrics.
+
 ## Anti-Patterns
 
 - Validation that exists only in prompt text.

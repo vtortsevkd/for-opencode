@@ -23,6 +23,9 @@
 | Handoff | `lib/pipeline/handoff.js` | готово + тесты |
 | Prune/decay/kind | `lib/pipeline/memory/instincts.js` | готово + тесты |
 | UI Electron (градер + скил) | `judges/code.js` (`ui_scenario`) + `skills/fis-ui-electron-testing` | готово + тесты |
+| Session (событийный лог + нарезка) | `lib/pipeline/session.js` | готово + тесты |
+| Sprint contract (согласование done) | `lib/pipeline/contract.js` | готово + тесты |
+| TTFT + cache-hit метрики | `lib/pipeline/metrics.js` | готово + тесты |
 | FIS-скилы | `skills/fis-*` | готово |
 | Внедрение | `docs/INTEGRATION.md` | готово |
 
@@ -49,6 +52,9 @@
 
 ### 7. Мультимодельный судья
 LLM-судья одной модели склонен к консенсусу с исполнителем. Для открытых артефактов — независимый второй судья (другая модель) с той же рубрикой; оба должны пройти.
+
+### 8. Stress-test stale assumptions (мета-принцип 2026)
+Каждый компонент harness кодирует предположение «что модель не умеет». Модели улучшаются → предположения устаревают → компоненты становятся мёртвым грузом. Периодически удаляй по одному компоненту и смотри, что реально несёт нагрузку (у Anthropic «context resets» стали dead weight на Opus 4.5). См. `docs/EVALUATOR-CALIBRATION.md`.
 
 ## Принцип движения
 

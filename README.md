@@ -20,6 +20,9 @@ fis-pipeline-hardening/
 │   ├── initializer.js      # сканфолд задачи (acceptance/ledger/progress)
 │   ├── observations.js     # конверт ответа tool + ограничение вывода
 │   ├── guard.js            # fail-closed граница + impact-проверка
+│   ├── handoff.js          # передача состояния между этапами
+│   ├── session.js          # событийный лог вне окна + нарезка
+│   ├── contract.js         # согласование «done» до работы
 │   └── audit.js            # 12-слойный аудит-чеклист
 ├── skills/                 # FIS-скилы (доменное знание)
 │   ├── fis-platform/       # общий домен: tools, safe/dangerous, нейминг
@@ -35,22 +38,24 @@ fis-pipeline-hardening/
 │   ├── ROADMAP.md          # что сделано и что улучшать дальше
 │   ├── ANTI-GOODHART.md    # судьи должны иметь ground-truth
 │   ├── CROSS-REVIEW.md     # cross-provider review + visual human gate
-│   └── COST.md             # prompt caching + model routing
-└── test/                   # 81 теста (node:test)
+│   ├── COST.md             # prompt caching + model routing
+│   ├── EVALUATOR-CALIBRATION.md # калибровка/скептицизм оценщика
+│   └── SKILL-ENGINEERING.md     # progressive disclosure скилов
+└── test/                   # 91 теста (node:test)
 ```
 
 ## Быстрый старт
 
 ```bash
 cd fis-pipeline-hardening
-npm test          # 81 теста, все зелёные
+npm test          # 91 теста, все зелёные
 ```
 
 Импорт:
 
 ```js
 import {
-  record, aggregateReport, formatReport,          // метрики
+  record, aggregateReport, formatReport, recordTtft, recordCache, // метрики
   grade, registry, codeGraders, ruleGraders,      // судьи
   addInstinct, inject, reflect, observe, correct, promote, // память
   appendDecision, decisionsFor, verifyChain,      // журнал
@@ -64,6 +69,8 @@ import {
   dualReview,                                      // santa-loop
   writeHandoff, readHandoff,                       // handoff
   pruneInstincts, decayConfidence, byKind,         // память: prune/decay/kind
+  emitEvent, getEvents, tail, rewind,              // session
+  proposeContract, approveContract, negotiateContract, // contract
   LAYERS, DIAGNOSTIC_QUESTIONS, renderFindings,   // аудит
 } from './lib/pipeline/index.js'
 ```
@@ -85,6 +92,8 @@ import {
 | **initializer** | Сканфолдит задачу (acceptance + ledger + progress) | чистое состояние на старте |
 | **santa** | `dualReview()` — два независимых ревьюера, оба должны пройти | ломает «сам пишет — сам судит» |
 | **handoff** | Передача ограниченного состояния следующему этапу/харнессу | следующий этап не пере-выводит контекст |
+| **session** | Событийный лог вне контекстного окна + нарезка `getEvents()` | окно = срез лога, контекст обратим |
+| **contract** | Согласование «done» до работы (propose → review → approve) | нет «победы раньше времени» |
 
 ## Ключевые решения
 
@@ -92,6 +101,7 @@ import {
 - **Судьи без подключённых tools честно возвращают `review`** — не выдумывают pass/fail.
 - **Fail-closed** — если `authorize`/`confirm` отсутствуют или запрещают, side effect не выполняется.
 - **Confidence-scoring** — инстинкт не бинарный: растёт от `observe()`, падает от `correct()`, созревает для промоушна.
+- **Session ≠ context window** — сессия это долговечный лог вне окна; окно — лишь срез (`session.js`).
 - **Zero-dependency** — только `node:fs/promises`, `node:crypto`, `node:path`, `node:test`.
 
 ## Куда смотреть дальше
