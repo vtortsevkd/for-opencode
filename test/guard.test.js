@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { requireSafeId, isIrreversible, runGuarded, assessImpact } from '../lib/pipeline/guard.js'
+import { requireSafeId, isIrreversible, runGuarded, assessImpact, isTrustedSender } from '../lib/pipeline/guard.js'
 
 test('requireSafeId accepts valid ids', () => {
   assert.equal(requireSafeId('Contractor_123'), 'Contractor_123')
@@ -71,4 +71,20 @@ test('assessImpact is unchecked without an enumerator', async () => {
   const r = await assessImpact({ id: 'x', operation: 'delete' })
   assert.equal(r.checked, false)
   assert.equal(r.blocking, false)
+})
+
+test('isTrustedSender accepts local file/app origins', () => {
+  assert.equal(isTrustedSender('file:///index.html'), true)
+  assert.equal(isTrustedSender('app://main/index.html'), true)
+})
+
+test('isTrustedSender rejects remote and empty origins by default', () => {
+  assert.equal(isTrustedSender('https://evil.com'), false)
+  assert.equal(isTrustedSender(''), false)
+  assert.equal(isTrustedSender(null), false)
+})
+
+test('isTrustedSender honors an explicit allowlist', () => {
+  assert.equal(isTrustedSender('https://allowed.com', { trustedOrigins: ['https://allowed.com'] }), true)
+  assert.equal(isTrustedSender('https://other.com', { trustedOrigins: ['https://allowed.com'] }), false)
 })

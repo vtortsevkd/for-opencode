@@ -28,6 +28,26 @@ The agent mutates a live platform via tools and receives task text from external
 - Malformed / oversized tool output returns a bounded, typed error.
 - No credential value appears in logs, journal, or metrics.
 
+## Electron Security Baseline
+
+The FIS desktop client must run with a hardened `webPreferences`, otherwise renderer bugs become platform access:
+
+```js
+new BrowserWindow({
+  webPreferences: {
+    contextIsolation: true,   // renderer never sees Node
+    nodeIntegration: false,   // critical
+    sandbox: true,
+  },
+})
+```
+
+- **IPC sender validation** — validate `event.senderFrame.url` with `isTrustedSender()` (see `lib/pipeline/guard.js`); reject remote origins.
+- **CSP** in renderer (`default-src 'self'`, no `unsafe-inline`/`unsafe-eval`).
+- **`shell.openExternal`** only for `https:` URLs, validated before opening.
+
+This is both security and testability: with `nodeIntegration: false`, all platform access flows through IPC, so tests mock at the IPC boundary and renderer attacks cannot reach the platform.
+
 ## Anti-Patterns
 
 - Validation that exists only in prompt text.

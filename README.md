@@ -36,14 +36,14 @@ fis-pipeline-hardening/
 │   ├── ANTI-GOODHART.md    # судьи должны иметь ground-truth
 │   ├── CROSS-REVIEW.md     # cross-provider review + visual human gate
 │   └── COST.md             # prompt caching + model routing
-└── test/                   # 78 теста (node:test)
+└── test/                   # 81 теста (node:test)
 ```
 
 ## Быстрый старт
 
 ```bash
 cd fis-pipeline-hardening
-npm test          # 78 теста, все зелёные
+npm test          # 81 теста, все зелёные
 ```
 
 Импорт:

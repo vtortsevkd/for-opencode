@@ -61,6 +61,27 @@ const modal = await app.waitForEvent('window')
 
 Wire `ctx.tools.runUiScenario` to a Playwright+Electron run that returns `{ ok, detail }`. The `code:ui_scenario` grader then returns `pass`/`fail` — a deterministic judge, not an LLM rubric. See `lib/pipeline/judges/code.js` and the `ui_flow` entry in `registry`.
 
+## IPC Contract Tests (the cheap, undervalued layer)
+
+Before any E2E scenario, test each `ipcMain.handle` contract deterministically — no app launch needed:
+
+```js
+// main process, test mode
+await app.evaluate(({ ipcMain }) => {
+  ipcMain.handle('fis:readObject', (event, id) => {
+    if (!isTrustedSender(event.senderFrame?.url)) throw new Error('untrusted sender')
+    return readObject(id) // returns the { status, summary, ... } envelope
+  })
+})
+```
+
+Contract assertions:
+- valid `id` → returns the tool envelope (`status: success`, `summary`, `next_actions`).
+- invalid / empty `id` → fail-closed (no side effect).
+- untrusted sender origin → rejected.
+
+These tests are fast, deterministic, and catch backend wiring bugs before the UI is even involved. They are a `code` grader target, not an LLM rubric.
+
 ## Anti-Patterns
 
 - Testing the wrong layer (renderer bug asserted in the main process).
