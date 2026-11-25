@@ -40,6 +40,16 @@ Before a dangerous operation, state **what**, **why**, and **what is affected**,
 - Identifiers: `[A-Za-z0-9_][A-Za-z0-9_-]*`, max 64 chars. No spaces, no `.`/`..`, no path-like strings.
 - Names and field keys follow the platform's registry; never invent field names — read them from the contract/registry first.
 
+## Canonical Example — tool response envelope
+
+A correct tool result the agent reads:
+
+```json
+{ "status": "success", "summary": "создан Контрагент Contractor_001", "next_actions": ["verify_read_back"], "artifacts": ["objects/contractor-001.json"], "recovery_hint": null }
+```
+
+The agent reads `status` and `next_actions`; it does not re-parse raw platform JSON.
+
 ## Anti-Patterns
 
 - Claiming an object was created without a verify read-back.

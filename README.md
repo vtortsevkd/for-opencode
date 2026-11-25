@@ -16,8 +16,10 @@ fis-pipeline-hardening/
 │   ├── ledger.js           # 5 — append-only журнал + хэш-цепочка
 │   ├── acceptance.js       # acceptance-чеклист (JSON, только flip false→true)
 │   ├── recovery.js         # 6 — диагноз → точечная починка → эскалация
+│   ├── delivery-gate.js    # механический запрет «готово»
+│   ├── initializer.js      # сканфолд задачи (acceptance/ledger/progress)
 │   ├── observations.js     # конверт ответа tool + ограничение вывода
-│   ├── guard.js            # fail-closed граница опасных операций
+│   ├── guard.js            # fail-closed граница + impact-проверка
 │   └── audit.js            # 12-слойный аудит-чеклист
 ├── skills/                 # FIS-скилы (доменное знание)
 │   ├── fis-platform/       # общий домен: tools, safe/dangerous, нейминг
@@ -25,18 +27,21 @@ fis-pipeline-hardening/
 │   ├── fis-search-testing/ # проверка поисковых функций
 │   ├── fis-ui-testing/     # UI-сценарии
 │   ├── fis-security/       # fail-closed границы
-│   └── fis-acceptance/     # acceptance-леджер + ритуал getting-up-to-speed
+│   ├── fis-acceptance/     # acceptance-леджер + ритуал getting-up-to-speed
+│   └── fis-initializer/    # initializer-стадия (сканфолд окружения)
 ├── docs/
 │   ├── INTEGRATION.md      # пошаговое внедрение
-│   └── ROADMAP.md          # что сделано и что улучшать дальше
-└── test/                   # 42 теста (node:test)
+│   ├── ROADMAP.md          # что сделано и что улучшать дальше
+│   ├── ANTI-GOODHART.md    # судьи должны иметь ground-truth
+│   └── COST.md             # prompt caching + model routing
+└── test/                   # 63 теста (node:test)
 ```
 
 ## Быстрый старт
 
 ```bash
 cd fis-pipeline-hardening
-npm test          # 42 теста, все зелёные
+npm test          # 63 теста, все зелёные
 ```
 
 Импорт:
@@ -49,8 +54,11 @@ import {
   appendDecision, decisionsFor, verifyChain,      // журнал
   diagnoseFailure, recover, logRecovery, stallDetector,   // recovery
   wrapToolResponse, toolError, truncateJson,      // наблюдения
-  requireSafeId, runGuarded,                      // граница
+  requireSafeId, runGuarded, assessImpact,        // граница
   initAcceptance, loadAcceptance, flipToPassing, pending, isComplete, progress, // acceptance
+  deliveryGate,                                    // механический «done» гейт
+  initTask, appendProgressNote,                    // initializer
+  goodhartRisk,                                    // anti-Goodhart
   LAYERS, DIAGNOSTIC_QUESTIONS, renderFindings,   // аудит
 } from './lib/pipeline/index.js'
 ```
@@ -66,8 +74,10 @@ import {
 | **acceptance** | Acceptance-чеклист в JSON: только flip `false→true`, список неизменяем | нет «победы раньше времени» |
 | **recovery** | Диагноз причины → точечная починка → эскалация вместо бесконечного ретрая | доводить до конца, не зацикливаясь |
 | **observations** | Конверт ответа tool (`status/summary/next_actions/artifacts/recovery_hint`) + лимит вывода | агент перестаёт парсить сырой JSON |
-| **guard** | Fail-closed: authorize → confirm → execute для delete/publish/mass_update | защита платформы от необратимой ошибки |
+| **guard** | Fail-closed: authorize → confirm → execute + impact-проверка | защита платформы от необратимой ошибки |
 | **audit** | 12-слойный чеклист + 7 диагностических вопросов | найти скрытые сбои в существующем пайплайне |
+| **delivery-gate** | Блокирует «готово», пока acceptance не полон + журнал цел + тесты зелёные + reflection выполнен | механически доводит до конца |
+| **initializer** | Сканфолдит задачу (acceptance + ledger + progress) | чистое состояние на старте |
 
 ## Ключевые решения
 

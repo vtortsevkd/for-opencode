@@ -37,6 +37,16 @@ A disciplined lifecycle for FIS objects. Every step leaves evidence; no step is 
 - Deleting without checking downstream references.
 - Trusting a prompt-level "must verify" rule that is not enforced in code.
 
+## Canonical Example
+
+A complete, correct `create` + verify read-back:
+
+1. `requireSafeId('Contractor_001')` passes.
+2. `create('Contractor', { id: 'Contractor_001', name: 'ООО Ромашка' })` → envelope `status: success`.
+3. `readObject('Contractor', 'Contractor_001')` returns the object; compare fields.
+4. Flip the acceptance criterion `contractor_created` to `passes: true`.
+5. Record the decision: `{ id: 'D-…', decision: 'created Contractor_001', reason: 'verified read-back' }`.
+
 ## Evidence
 
 After each object operation, the decision journal should contain: operation, object id, verify-read result, and the reason for any update/delete.

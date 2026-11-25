@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { grade } from '../lib/pipeline/judges/registry.js'
+import { grade, goodhartRisk } from '../lib/pipeline/judges/registry.js'
 import { codeGraders } from '../lib/pipeline/judges/code.js'
 import { ruleGraders } from '../lib/pipeline/judges/rule.js'
 
@@ -36,4 +36,20 @@ test('grade() returns a structured verdict with checks', async () => {
   assert.ok(Array.isArray(out.checks))
   assert.equal(out.checks.length, 2)
   assert.equal(out.verdict, 'pass')
+})
+
+test('goodhartRisk flags an llm-only verdict', () => {
+  assert.equal(goodhartRisk([{ type: 'llm', result: 'pass' }]).risk, 'high')
+})
+
+test('goodhartRisk is low when a code check passes', () => {
+  assert.equal(goodhartRisk([{ type: 'code', result: 'pass' }, { type: 'llm', result: 'pass' }]).risk, 'low')
+})
+
+test('goodhartRisk is high when ground-truth checks fail', () => {
+  assert.equal(goodhartRisk([{ type: 'code', result: 'fail' }]).risk, 'high')
+})
+
+test('goodhartRisk is high with no checks', () => {
+  assert.equal(goodhartRisk([]).risk, 'high')
 })

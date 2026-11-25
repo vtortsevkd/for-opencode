@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { requireSafeId, isIrreversible, runGuarded } from '../lib/pipeline/guard.js'
+import { requireSafeId, isIrreversible, runGuarded, assessImpact } from '../lib/pipeline/guard.js'
 
 test('requireSafeId accepts valid ids', () => {
   assert.equal(requireSafeId('Contractor_123'), 'Contractor_123')
@@ -52,4 +52,23 @@ test('runGuarded executes when authorized and confirmed', async () => {
   assert.equal(r.ok, true)
   assert.equal(r.status, 'executed')
   assert.equal(r.result, 'done:1')
+})
+
+test('assessImpact blocks delete with downstream references', async () => {
+  const r = await assessImpact({ enumerateDownstream: async () => ['obj1', 'obj2'], id: 'x', operation: 'delete' })
+  assert.equal(r.checked, true)
+  assert.equal(r.blocking, true)
+  assert.equal(r.references.length, 2)
+})
+
+test('assessImpact allows update with references', async () => {
+  const r = await assessImpact({ enumerateDownstream: async () => ['obj1'], id: 'x', operation: 'update' })
+  assert.equal(r.checked, true)
+  assert.equal(r.blocking, false)
+})
+
+test('assessImpact is unchecked without an enumerator', async () => {
+  const r = await assessImpact({ id: 'x', operation: 'delete' })
+  assert.equal(r.checked, false)
+  assert.equal(r.blocking, false)
 })

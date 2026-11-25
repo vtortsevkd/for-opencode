@@ -107,6 +107,24 @@ const r = await runGuarded({
 const safeId = requireSafeId(input.id)
 ```
 
+### Acceptance + delivery gate + initializer
+
+```js
+// старт задачи — initializer (первая стадия):
+await initTask(taskDir, { taskId, taskFamily, criteria })
+
+// при проверке — flip acceptance только после end-to-end:
+await flipToPassing(taskDir, 'contractor_created')
+
+// финальный гейт — механический запрет «готово»:
+const gate = await deliveryGate(taskDir, { testsPassed: true })
+if (!gate.ready) throw new Error(`blocked: ${gate.blockers.join(', ')}`)
+
+// перед delete — impact-проверка:
+const impact = await assessImpact({ enumerateDownstream, id, operation: 'delete' })
+if (impact.blocking) return { status: 'blocked', message: impact.message }
+```
+
 ## 4. Подключить скилы
 
 Скопируй `skills/fis-*` в каталог скилов харнесса (или сошли на них в `agent.md`). Минимальная строка в `agent.md`:

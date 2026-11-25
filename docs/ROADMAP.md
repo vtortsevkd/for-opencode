@@ -13,6 +13,11 @@
 | Fail-closed граница операций | `lib/pipeline/guard.js` | готово + тесты |
 | 12-слойный аудит (чеклист) | `lib/pipeline/audit.js` | готово + тесты |
 | Acceptance-леджер (JSON) | `lib/pipeline/acceptance.js` | готово + тесты |
+| Delivery gate | `lib/pipeline/delivery-gate.js` | готово + тесты |
+| Initializer | `lib/pipeline/initializer.js` | готово + тесты |
+| Impact-проверка | `lib/pipeline/guard.js` (`assessImpact`) | готово + тесты |
+| Anti-Goodhart | `goodhartRisk()` + `docs/ANTI-GOODHART.md` | готово + тесты |
+| Cost (caching + routing) | `docs/COST.md` | готово (doc) |
 | FIS-скилы | `skills/fis-*` | готово |
 | Внедрение | `docs/INTEGRATION.md` | готово |
 

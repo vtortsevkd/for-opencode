@@ -34,6 +34,14 @@ Search functions are run against a local checkout, then verified against an expe
 - Running a function and not recording its output as evidence.
 - Ignoring the empty-result case (a common source of silent bugs).
 
+## Canonical Example
+
+1. `searchContractors('ромашка')` is expected to return exactly 1 row.
+2. Run on the local checkout → `[{ id: 'Contractor_001' }]`.
+3. `expected_row_count` grader: expected 1, got 1 → pass.
+4. Negative case: `searchContractors('')` must return `[]`, not throw.
+5. Record both results as evidence.
+
 ## Deterministic Grader
 
 The `code:expected_row_count` and `code:expected_ids` graders in `lib/pipeline/judges/code.js` implement this verification. Wire `ctx.tools.runSearch` to the local search runner.
