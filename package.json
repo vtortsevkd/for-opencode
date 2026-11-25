@@ -1,0 +1,10 @@
+{
+  "name": "fis-pipeline-hardening",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "5 hardening modules for the FIS agent pipeline: metrics, hybrid judges, memory, decision ledger, recovery protocol.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
