@@ -12,6 +12,7 @@
 | Конверт наблюдений tool | `lib/pipeline/observations.js` | готово + тесты |
 | Fail-closed граница операций | `lib/pipeline/guard.js` | готово + тесты |
 | 12-слойный аудит (чеклист) | `lib/pipeline/audit.js` | готово + тесты |
+| Acceptance-леджер (JSON) | `lib/pipeline/acceptance.js` | готово + тесты |
 | FIS-скилы | `skills/fis-*` | готово |
 | Внедрение | `docs/INTEGRATION.md` | готово |
 

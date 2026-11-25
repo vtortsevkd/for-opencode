@@ -14,6 +14,7 @@ fis-pipeline-hardening/
 │   ├── judges/             # 2 — гибридные судьи (code/rule/llm + маршрутизация)
 │   ├── memory/instincts.js # 3 — память + confidence-scoring + промоушн
 │   ├── ledger.js           # 5 — append-only журнал + хэш-цепочка
+│   ├── acceptance.js       # acceptance-чеклист (JSON, только flip false→true)
 │   ├── recovery.js         # 6 — диагноз → точечная починка → эскалация
 │   ├── observations.js     # конверт ответа tool + ограничение вывода
 │   ├── guard.js            # fail-closed граница опасных операций
@@ -23,7 +24,8 @@ fis-pipeline-hardening/
 │   ├── fis-crud/           # жизненный цикл объектов
 │   ├── fis-search-testing/ # проверка поисковых функций
 │   ├── fis-ui-testing/     # UI-сценарии
-│   └── fis-security/       # fail-closed границы
+│   ├── fis-security/       # fail-closed границы
+│   └── fis-acceptance/     # acceptance-леджер + ритуал getting-up-to-speed
 ├── docs/
 │   ├── INTEGRATION.md      # пошаговое внедрение
 │   └── ROADMAP.md          # что сделано и что улучшать дальше
@@ -48,6 +50,7 @@ import {
   diagnoseFailure, recover, logRecovery, stallDetector,   // recovery
   wrapToolResponse, toolError, truncateJson,      // наблюдения
   requireSafeId, runGuarded,                      // граница
+  initAcceptance, loadAcceptance, flipToPassing, pending, isComplete, progress, // acceptance
   LAYERS, DIAGNOSTIC_QUESTIONS, renderFindings,   // аудит
 } from './lib/pipeline/index.js'
 ```
@@ -60,6 +63,7 @@ import {
 | **judges** | Детерминированные (code/rule) судьи, LLM — только крайняя мера | убрать флак LLM-судьи |
 | **memory** | Извлечение ≤1 правила за задачу, дедупликация, confidence 0.1–0.9, промоушн | пайплайн умнеет с каждым прогоном |
 | **ledger** | Append-only журнал решений + хэш-цепочка (подмена истории обнаруживается) | судьи видят «почему», история защищена |
+| **acceptance** | Acceptance-чеклист в JSON: только flip `false→true`, список неизменяем | нет «победы раньше времени» |
 | **recovery** | Диагноз причины → точечная починка → эскалация вместо бесконечного ретрая | доводить до конца, не зацикливаясь |
 | **observations** | Конверт ответа tool (`status/summary/next_actions/artifacts/recovery_hint`) + лимит вывода | агент перестаёт парсить сырой JSON |
 | **guard** | Fail-closed: authorize → confirm → execute для delete/publish/mass_update | защита платформы от необратимой ошибки |
