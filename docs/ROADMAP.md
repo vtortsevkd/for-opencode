@@ -18,6 +18,10 @@
 | Impact-проверка | `lib/pipeline/guard.js` (`assessImpact`) | готово + тесты |
 | Anti-Goodhart | `goodhartRisk()` + `docs/ANTI-GOODHART.md` | готово + тесты |
 | Cost (caching + routing) | `docs/COST.md` | готово (doc) |
+| Cross-provider + human gate | `docs/CROSS-REVIEW.md` | готово (doc) |
+| Dual-review (santa-loop) | `lib/pipeline/judges/santa.js` | готово + тесты |
+| Handoff | `lib/pipeline/handoff.js` | готово + тесты |
+| Prune/decay/kind | `lib/pipeline/memory/instincts.js` | готово + тесты |
 | FIS-скилы | `skills/fis-*` | готово |
 | Внедрение | `docs/INTEGRATION.md` | готово |
 

@@ -33,15 +33,16 @@ fis-pipeline-hardening/
 │   ├── INTEGRATION.md      # пошаговое внедрение
 │   ├── ROADMAP.md          # что сделано и что улучшать дальше
 │   ├── ANTI-GOODHART.md    # судьи должны иметь ground-truth
+│   ├── CROSS-REVIEW.md     # cross-provider review + visual human gate
 │   └── COST.md             # prompt caching + model routing
-└── test/                   # 63 теста (node:test)
+└── test/                   # 75 теста (node:test)
 ```
 
 ## Быстрый старт
 
 ```bash
 cd fis-pipeline-hardening
-npm test          # 63 теста, все зелёные
+npm test          # 75 теста, все зелёные
 ```
 
 Импорт:
@@ -59,6 +60,9 @@ import {
   deliveryGate,                                    // механический «done» гейт
   initTask, appendProgressNote,                    // initializer
   goodhartRisk,                                    // anti-Goodhart
+  dualReview,                                      // santa-loop
+  writeHandoff, readHandoff,                       // handoff
+  pruneInstincts, decayConfidence, byKind,         // память: prune/decay/kind
   LAYERS, DIAGNOSTIC_QUESTIONS, renderFindings,   // аудит
 } from './lib/pipeline/index.js'
 ```
@@ -69,7 +73,7 @@ import {
 |--------|-----------|-------|
 | **metrics** | NDJSON-эмиссия событий прогона + `pass@1`/`pass@3`/среднее время | сделать конвейер измеримым |
 | **judges** | Детерминированные (code/rule) судьи, LLM — только крайняя мера | убрать флак LLM-судьи |
-| **memory** | Извлечение ≤1 правила за задачу, дедупликация, confidence 0.1–0.9, промоушн | пайплайн умнеет с каждым прогоном |
+| **memory** | Извлечение ≤1 правила, дедупликация, confidence 0.1–0.9, промоушн, decay, prune | пайплайн умнеет, память не засоряется |
 | **ledger** | Append-only журнал решений + хэш-цепочка (подмена истории обнаруживается) | судьи видят «почему», история защищена |
 | **acceptance** | Acceptance-чеклист в JSON: только flip `false→true`, список неизменяем | нет «победы раньше времени» |
 | **recovery** | Диагноз причины → точечная починка → эскалация вместо бесконечного ретрая | доводить до конца, не зацикливаясь |
@@ -78,6 +82,8 @@ import {
 | **audit** | 12-слойный чеклист + 7 диагностических вопросов | найти скрытые сбои в существующем пайплайне |
 | **delivery-gate** | Блокирует «готово», пока acceptance не полон + журнал цел + тесты зелёные + reflection выполнен | механически доводит до конца |
 | **initializer** | Сканфолдит задачу (acceptance + ledger + progress) | чистое состояние на старте |
+| **santa** | `dualReview()` — два независимых ревьюера, оба должны пройти | ломает «сам пишет — сам судит» |
+| **handoff** | Передача ограниченного состояния следующему этапу/харнессу | следующий этап не пере-выводит контекст |
 
 ## Ключевые решения
 
