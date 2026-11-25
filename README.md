@@ -28,21 +28,22 @@ fis-pipeline-hardening/
 │   ├── fis-ui-testing/     # UI-сценарии
 │   ├── fis-security/       # fail-closed границы
 │   ├── fis-acceptance/     # acceptance-леджер + ритуал getting-up-to-speed
-│   └── fis-initializer/    # initializer-стадия (сканфолд окружения)
+│   ├── fis-initializer/    # initializer-стадия (сканфолд окружения)
+│   └── fis-ui-electron-testing/ # Electron UI-тесты (Playwright _electron)
 ├── docs/
 │   ├── INTEGRATION.md      # пошаговое внедрение
 │   ├── ROADMAP.md          # что сделано и что улучшать дальше
 │   ├── ANTI-GOODHART.md    # судьи должны иметь ground-truth
 │   ├── CROSS-REVIEW.md     # cross-provider review + visual human gate
 │   └── COST.md             # prompt caching + model routing
-└── test/                   # 75 теста (node:test)
+└── test/                   # 78 теста (node:test)
 ```
 
 ## Быстрый старт
 
 ```bash
 cd fis-pipeline-hardening
-npm test          # 75 теста, все зелёные
+npm test          # 78 теста, все зелёные
 ```
 
 Импорт:

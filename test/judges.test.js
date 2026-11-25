@@ -53,3 +53,20 @@ test('goodhartRisk is high when ground-truth checks fail', () => {
 test('goodhartRisk is high with no checks', () => {
   assert.equal(goodhartRisk([]).risk, 'high')
 })
+
+test('code ui_scenario returns review when not wired', async () => {
+  const r = await codeGraders.ui_scenario({ artifact: { scenario: () => {} }, ctx: {} })
+  assert.equal(r.result, 'review')
+})
+
+test('code ui_scenario passes when scenario is ok', async () => {
+  const ctx = { tools: { runUiScenario: async () => ({ ok: true, detail: 'passed' }) } }
+  const r = await codeGraders.ui_scenario({ artifact: { scenario: () => {} }, ctx })
+  assert.equal(r.result, 'pass')
+})
+
+test('code ui_scenario fails when scenario is not ok', async () => {
+  const ctx = { tools: { runUiScenario: async () => ({ ok: false, detail: 'assert failed' }) } }
+  const r = await codeGraders.ui_scenario({ artifact: { scenario: () => {} }, ctx })
+  assert.equal(r.result, 'fail')
+})

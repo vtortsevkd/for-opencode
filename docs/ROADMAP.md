@@ -22,6 +22,7 @@
 | Dual-review (santa-loop) | `lib/pipeline/judges/santa.js` | готово + тесты |
 | Handoff | `lib/pipeline/handoff.js` | готово + тесты |
 | Prune/decay/kind | `lib/pipeline/memory/instincts.js` | готово + тесты |
+| UI Electron (градер + скил) | `judges/code.js` (`ui_scenario`) + `skills/fis-ui-electron-testing` | готово + тесты |
 | FIS-скилы | `skills/fis-*` | готово |
 | Внедрение | `docs/INTEGRATION.md` | готово |
 
